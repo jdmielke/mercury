@@ -81,6 +81,7 @@ public class Player extends Mob {
 			}
 		}
 		screen.render32Player(x - 16, y - 16, sprite);
+		
 	}
 	
 	

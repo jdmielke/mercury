@@ -8,4 +8,7 @@ public class ErodingStoneJungleTile extends Tile {
 		super(sprite);
 	}
 
+	public boolean solid() {
+		return true;
+	}
 }

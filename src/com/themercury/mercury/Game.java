@@ -9,13 +9,15 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import com.themercury.mercury.Graphics.Screen;
 import com.themercury.mercury.entity.mob.Player;
 import com.themercury.mercury.input.Keyboard;
 import com.themercury.mercury.level.Level;
-import com.themercury.mercury.level.RandomLevel;
 import com.themercury.mercury.level.SpawnLevel;
+import com.themercury.mercury.net.GameClient;
+import com.themercury.mercury.net.GameServer;
 
 public class Game extends Canvas implements Runnable{
 	private static final long serialVersionUID = 1L;
@@ -37,6 +39,9 @@ public class Game extends Canvas implements Runnable{
 	
 	private Screen screen;
 	
+	private GameClient socketClient;
+	private GameServer socketServer;
+	
 	public Game() {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
@@ -46,14 +51,27 @@ public class Game extends Canvas implements Runnable{
 		key = new Keyboard();
 		level = new SpawnLevel("/textures/spawnlevel.png");
 		player = new Player(level.getWidth()<<3, level.getHeight()<<3, key);
-				
+		player.init(level);
 		addKeyListener(key);
+		
+		
 	}
 	
 	public synchronized void start() {
 		running = true;
 		gameThread = new Thread(this, "Display");
 		gameThread.start();
+		
+		if(JOptionPane.showConfirmDialog(this, "START SERVER?") == 0) {
+			socketServer = new GameServer(this);
+			socketServer.start();
+		}
+		
+		socketClient = new GameClient(this, "localhost");
+		socketClient.start();
+		
+		socketClient.sendData("ping".getBytes());
+		
 	}
 	
 	public synchronized void stop() {

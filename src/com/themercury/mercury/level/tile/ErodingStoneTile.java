@@ -7,5 +7,9 @@ public class ErodingStoneTile extends Tile {
 	public ErodingStoneTile(Sprite sprite) {
 		super(sprite);
 	}
+	
+	public boolean solid() {
+		return true;
+	}
 
 }

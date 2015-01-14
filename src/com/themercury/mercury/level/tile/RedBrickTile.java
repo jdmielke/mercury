@@ -7,5 +7,9 @@ public class RedBrickTile extends Tile {
 	public RedBrickTile(Sprite sprite) {
 		super(sprite);
 	}
+	
+	public boolean solid() {
+		return true;
+	}
 
 }

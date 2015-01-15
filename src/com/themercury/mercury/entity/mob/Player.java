@@ -1,5 +1,6 @@
 package com.themercury.mercury.entity.mob;
 
+import com.themercury.mercury.Graphics.Font;
 import com.themercury.mercury.Graphics.Screen;
 import com.themercury.mercury.Graphics.Sprite;
 import com.themercury.mercury.input.Keyboard;
@@ -10,6 +11,7 @@ public class Player extends Mob {
 	private Sprite sprite;
 	private int animate = 0;
 	private boolean walking = false;
+	protected String username;
 	
 	public Player(Keyboard input) {
 		this.input = input;
@@ -27,11 +29,12 @@ public class Player extends Mob {
 		int ya = 0;
 		if(animate < 10000) animate++;
 		else animate = 0;
-		if(input.up) ya--;
-		if(input.down) ya++;
-		if(input.left) xa--;
-		if(input.right) xa++;
-		
+		if(input != null){
+			if(input.up) ya--;
+			if(input.down) ya++;
+			if(input.left) xa--;
+			if(input.right) xa++;
+		}
 		if(xa != 0 || ya != 0){
 			move(xa, ya);
 			walking = true;
@@ -81,8 +84,12 @@ public class Player extends Mob {
 			}
 		}
 		screen.render32Player(x - 16, y - 16, sprite);
+		Font.render(username, screen, x - (username.length() * 8) / 2, y - 30, 0x00);
 		
 	}
 	
+	public String getUsername() {
+		return username;
+	}
 	
 }

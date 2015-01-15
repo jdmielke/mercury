@@ -1,6 +1,11 @@
 package com.themercury.mercury.level;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.themercury.mercury.Graphics.Screen;
+import com.themercury.mercury.entity.Entity;
+import com.themercury.mercury.entity.mob.PlayerMP;
 import com.themercury.mercury.level.tile.Tile;
 
 public class Level {
@@ -8,6 +13,7 @@ public class Level {
 	protected int height;
 	protected int[] tilesInt;
 	protected int[] tiles;
+	public List<Entity> entities = new ArrayList<Entity>();
 	
 	public Level(int width, int height) {
 		this.width = width;
@@ -37,8 +43,10 @@ public class Level {
 		
 	}
 	
-	public void update() {
-		
+	public void updateEntities() {
+		for(Entity e : entities) {
+			e.update();
+		}
 	}
 	
 	private void time() {
@@ -76,6 +84,27 @@ public class Level {
 		if(tiles[x + y * width] == 0xff2a542e) return Tile.erodingStoneJungle;
 		
 		return Tile.voidTile;
+	}
+	
+	public void addEntity(Entity entity) {
+		entities.add(entity);
+	}
+
+	public void renderPlayers(Screen screen) {
+		for(Entity e : entities) {
+			e.render(screen);
+		}
+	}
+
+	public void removePlayerMP(String username) {
+		int index = 0;
+		for(Entity e : entities) {
+			if(e instanceof PlayerMP && ((PlayerMP)e).getUsername().equalsIgnoreCase(username)) {
+				break;
+			}
+			index++;
+		}
+		this.entities.remove(index);
 	}
 			
 }

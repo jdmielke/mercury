@@ -47,7 +47,8 @@ public class Screen {
 				int xa = x + xp;
 				if(xa < -tile.sprite.SIZE || xa >= width || ya < 0 || ya >= height) break;
 				if(xa < 0) xa = 0;
-				pixels[xa + ya * width] = tile.sprite.pixels[x + y * tile.sprite.SIZE];
+				int col = tile.sprite.pixels[x + y * tile.sprite.SIZE];
+				if(col != 0xffff00e5) pixels[xa + ya * width] = col;
 			}
 		}
 	}
@@ -62,6 +63,22 @@ public class Screen {
 				if(xa < - 32 || xa >= width || ya < 0 || ya >= height) break;
 				if(xa < 0) xa = 0;
 				int col = sprite.pixels[x + y * 32];
+				if(col != 0xffff00e5) pixels[xa + ya * width] = col;
+			}
+		}
+	}
+	
+	public void renderText(int xt, int yt, int pos) {
+		Sprite sprite = new Sprite(8, pos%32, pos/32, SpriteSheet.fonts);
+		xt -= xOffset;
+		yt -= yOffset;
+		for(int y = 0; y < 8; y++) {
+			int ya = y + yt;
+			for(int x = 0; x < 8; x++) {
+				int xa = x + xt;
+				if(xa < - 8 || xa >= width || ya < 0 || ya >= height) break;
+				if(xa < 0) xa = 0;
+				int col = sprite.pixels[x + y * 8];
 				if(col != 0xffff00e5) pixels[xa + ya * width] = col;
 			}
 		}

@@ -8,6 +8,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.themercury.mercury.Game;
+import com.themercury.mercury.entity.mob.PlayerMP;
+import com.themercury.mercury.net.packet.Packet;
+import com.themercury.mercury.net.packet.Packet00Login;
+import com.themercury.mercury.net.packet.Packet01Disconnect;
+import com.themercury.mercury.net.packet.Packet.PacketTypes;
 
 public class GameClient extends Thread {
 	
@@ -37,11 +42,34 @@ public class GameClient extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			String msg = new String(packet.getData());
-			System.out.println("SERVER > " + msg);
+			
+			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
+//			String msg = new String(packet.getData());
+//			System.out.println("SERVER > " + msg);
 		}
 	}
 	
+	private void parsePacket(byte[] data, InetAddress address, int port) {
+		String message = new String(data).trim();
+		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
+		Packet packet = null;
+		if(type == PacketTypes.INVALID) {
+			
+		} else if(type == PacketTypes.LOGIN) {
+			packet = new Packet00Login(data);
+			System.out.println("["+address.getHostAddress()+ ":"+port+"] " + ((Packet00Login)packet).getUsername() + " HAS JOINED THE GAME...");
+			PlayerMP player = new PlayerMP(game.getLevel(), game.getLevel().getWidth()<<3, game.getLevel().getHeight()<<3, ((Packet00Login)packet).getUsername(), address, port);
+			game.level.addEntity(player);
+			
+			
+		} else if(type == PacketTypes.DISCONNECT) {
+			packet = new Packet01Disconnect(data);
+			System.out.println("["+address.getHostAddress()+ ":"+port+"] " + ((Packet01Disconnect)packet).getUsername() + " HAS LEFT THE WORLD...");
+			PlayerMP player = new PlayerMP(game.getLevel(), game.getLevel().getWidth()<<3, game.getLevel().getHeight()<<3, ((Packet01Disconnect)packet).getUsername(), address, port);
+			game.level.removePlayerMP(((Packet01Disconnect)packet).getUsername());
+		}		
+	}
+
 	public void sendData(byte[] data) {
 		DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1331);
 		try {

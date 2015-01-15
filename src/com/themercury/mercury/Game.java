@@ -13,11 +13,14 @@ import javax.swing.JOptionPane;
 
 import com.themercury.mercury.Graphics.Screen;
 import com.themercury.mercury.entity.mob.Player;
+import com.themercury.mercury.entity.mob.PlayerMP;
 import com.themercury.mercury.input.Keyboard;
+import com.themercury.mercury.input.WindowHandler;
 import com.themercury.mercury.level.Level;
 import com.themercury.mercury.level.SpawnLevel;
 import com.themercury.mercury.net.GameClient;
 import com.themercury.mercury.net.GameServer;
+import com.themercury.mercury.net.packet.Packet00Login;
 
 public class Game extends Canvas implements Runnable{
 	private static final long serialVersionUID = 1L;
@@ -28,10 +31,11 @@ public class Game extends Canvas implements Runnable{
 	public static String title = "Mercury";
 
 	private Thread gameThread;
-	private JFrame frame;
+	public JFrame frame;
 	private Keyboard key;
-	private Level level;
-	private Player player;
+	public WindowHandler windowHandler;
+	public Level level;
+	public Player player;
 	private boolean running = false;
 	
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -39,22 +43,47 @@ public class Game extends Canvas implements Runnable{
 	
 	private Screen screen;
 	
-	private GameClient socketClient;
-	private GameServer socketServer;
+	public GameClient socketClient;
+	public GameServer socketServer;
 	
 	public Game() {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
-		
-		screen = new Screen(width, height);
 		frame = new JFrame();
+		frame.setResizable(false);
+		frame.setTitle("Mercury");
+		frame.add(this);
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
+	
+	public void init() {
+		screen = new Screen(width, height);
 		key = new Keyboard();
+		windowHandler = new WindowHandler(this);
 		level = new SpawnLevel("/textures/spawnlevel.png");
-		player = new Player(level.getWidth()<<3, level.getHeight()<<3, key);
-		player.init(level);
 		addKeyListener(key);
+		player = new PlayerMP(level, level.getWidth()<<3, level.getHeight()<<3, key, JOptionPane.showInputDialog(this, "Please enter a username"), null, -1);
+		level.addEntity(player);
+		Packet00Login loginPacket = new Packet00Login(player.getUsername());
+
+		if(socketServer!=null) {
+			socketServer.addConnection((PlayerMP)player, loginPacket);
+		}
+		loginPacket.writeData(socketClient);
 		
 		
+		
+	}
+	
+	public Level getLevel() {
+		return level;
+	}
+	
+	public Keyboard getKeyoard() {
+		return key;
 	}
 	
 	public synchronized void start() {
@@ -69,8 +98,6 @@ public class Game extends Canvas implements Runnable{
 		
 		socketClient = new GameClient(this, "localhost");
 		socketClient.start();
-		
-		socketClient.sendData("ping".getBytes());
 		
 	}
 	
@@ -91,6 +118,8 @@ public class Game extends Canvas implements Runnable{
 		int frames = 0;
 		int updates = 0;
 		requestFocus();
+		
+		init();
 		while(running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
@@ -116,7 +145,7 @@ public class Game extends Canvas implements Runnable{
 	
 	public void update() {
 		key.update();
-		player.update();
+		level.updateEntities();
 	}
 	
 	public void render() {
@@ -130,7 +159,7 @@ public class Game extends Canvas implements Runnable{
 		int xScroll = player.x - screen.width / 2;
 		int yScroll = player.y - screen.height / 2;
 		level.render(xScroll, yScroll, screen);
-		player.render(screen);
+		level.renderPlayers(screen);
 		
 		for(int i = 0; i < pixels.length; i++) {
 			pixels[i] = screen.pixels[i];
@@ -147,15 +176,6 @@ public class Game extends Canvas implements Runnable{
 	}
 
 	public static void main(String[] args) {
-		Game game = new Game();
-		game.frame.setResizable(false);
-		game.frame.setTitle("Mercury");
-		game.frame.add(game);
-		game.frame.pack();
-		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		game.frame.setLocationRelativeTo(null);
-		game.frame.setVisible(true);
-		
-		game.start();
+		new Game().start();
 	}
 }

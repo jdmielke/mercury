@@ -5,7 +5,7 @@ import com.themercury.mercury.net.GameServer;
 
 public class Packet01Disconnect extends Packet {
 
-private String username;
+	private String username;
 	
 	public Packet01Disconnect(byte[] data) {
 		super(01);

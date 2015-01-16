@@ -15,6 +15,7 @@ import com.themercury.mercury.net.packet.Packet;
 import com.themercury.mercury.net.packet.Packet.PacketTypes;
 import com.themercury.mercury.net.packet.Packet00Login;
 import com.themercury.mercury.net.packet.Packet01Disconnect;
+import com.themercury.mercury.net.packet.Packet02Move;
 
 public class GameServer extends Thread {
 	private DatagramSocket socket;
@@ -42,11 +43,6 @@ public class GameServer extends Thread {
 			}
 			
 			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
-//			String msg = new String(packet.getData());
-//			System.out.println("CLIENT [" + packet.getAddress().getHostAddress() + ":" + packet.getPort() + "] > " + msg);
-//			if(msg.trim().equalsIgnoreCase("ping")) {
-//				sendData("pong".getBytes(), packet.getAddress(), packet.getPort());
-//			}
 		}
 	}
 	
@@ -64,8 +60,10 @@ public class GameServer extends Thread {
 		} else if(type == PacketTypes.DISCONNECT) {
 			packet = new Packet01Disconnect(data);
 			System.out.println("["+address.getHostAddress()+ ":"+port+"] " + ((Packet01Disconnect)packet).getUsername() + " HAS LEFT...");
-			PlayerMP player = new PlayerMP(game.getLevel(), game.getLevel().getWidth()<<3, game.getLevel().getHeight()<<3, ((Packet01Disconnect)packet).getUsername(), address, port);
 			this.removeConnection((Packet01Disconnect)packet);
+		} else if(type == PacketTypes.MOVE) {
+			packet = new Packet02Move(data);
+			movePlayer((Packet02Move)packet);
 		}
 	}
 
@@ -95,6 +93,15 @@ public class GameServer extends Thread {
 	private void removeConnection(Packet01Disconnect packet) {
 		this.connectedPlayers.remove(getPlayerIndex(packet.getUsername()));
 		packet.writeData(this);
+	}
+	
+	private void movePlayer(Packet02Move packet) {
+		if(getPlayerMP(packet.getUsername()) != null) {
+			int index = getPlayerIndex(packet.getUsername());
+			this.connectedPlayers.get(index).x = packet.getX();
+			this.connectedPlayers.get(index).y = packet.getY();
+			packet.writeData(this);
+		}
 	}
 	
 	public PlayerMP getPlayerMP(String username) {

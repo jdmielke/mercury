@@ -1,9 +1,11 @@
 package com.themercury.mercury.entity.mob;
 
+import com.themercury.mercury.Game;
 import com.themercury.mercury.Graphics.Font;
 import com.themercury.mercury.Graphics.Screen;
 import com.themercury.mercury.Graphics.Sprite;
 import com.themercury.mercury.input.Keyboard;
+import com.themercury.mercury.net.packet.Packet02Move;
 
 public class Player extends Mob {
 	
@@ -38,6 +40,9 @@ public class Player extends Mob {
 		if(xa != 0 || ya != 0){
 			move(xa, ya);
 			walking = true;
+			
+			Packet02Move packet = new Packet02Move(this.getUsername(), this.x, this.y);
+			packet.writeData(Game.game.socketClient);
 		}
 		else walking = false;
 	}

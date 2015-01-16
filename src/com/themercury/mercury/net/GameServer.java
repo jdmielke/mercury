@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.themercury.mercury.Game;
-import com.themercury.mercury.entity.mob.Player;
 import com.themercury.mercury.entity.mob.PlayerMP;
 import com.themercury.mercury.net.packet.Packet;
 import com.themercury.mercury.net.packet.Packet.PacketTypes;

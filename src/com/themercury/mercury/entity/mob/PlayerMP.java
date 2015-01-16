@@ -30,4 +30,8 @@ public class PlayerMP extends Player {
 		super.update();
 	}
 	
+	public void render() {
+		super.render();
+	}
+	
 }

@@ -119,8 +119,9 @@ public class Level {
 	}
 	
 	public void movePlayer(String username, int x, int y) {
-		entities.get(getPlayerMPIndex(username)).x = x;
-		entities.get(getPlayerMPIndex(username)).y = y;
+		int xa = x - entities.get(getPlayerMPIndex(username)).x;
+		int ya = y - entities.get(getPlayerMPIndex(username)).y;
+		((PlayerMP)entities.get(getPlayerMPIndex(username))).move(xa, ya);
 	}
 			
 }

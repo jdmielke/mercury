@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -47,6 +49,7 @@ public class Game extends Canvas implements Runnable{
 	
 	public GameClient socketClient;
 	public GameServer socketServer;
+	private String serverIP;
 	
 	public Game() {
 		Dimension size = new Dimension(width * scale, height * scale);
@@ -97,9 +100,16 @@ public class Game extends Canvas implements Runnable{
 		if(JOptionPane.showConfirmDialog(this, "START SERVER?") == 0) {
 			socketServer = new GameServer(this);
 			socketServer.start();
+			try {
+				serverIP = Inet4Address.getLocalHost().getHostAddress();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+		}else{
+			serverIP = JOptionPane.showInputDialog(this, "Enter server ip");
 		}
 		
-		socketClient = new GameClient(this, "localhost");
+		socketClient = new GameClient(this, serverIP);
 		socketClient.start();
 		
 	}

@@ -12,7 +12,7 @@ public class Player extends Mob {
 	private Keyboard input;
 	private Sprite sprite;
 	private int animate = 0;
-	private boolean walking = false;
+	public boolean walking = false;
 	protected String username;
 	
 	public Player(Keyboard input) {
@@ -50,7 +50,7 @@ public class Player extends Mob {
 	public void render(Screen screen) {
 		if(dir == 0) {
 			sprite = Sprite.playerU;
-			if(walking) {
+			if(walking || moving) {
 				if(animate % 20 > 10) {
 					sprite = Sprite.playerU_1;
 				}else {
@@ -60,7 +60,7 @@ public class Player extends Mob {
 		}
 		if(dir == 1) {
 			sprite = Sprite.playerR;
-			if(walking) {
+			if(walking || moving) {
 				if(animate % 20 > 10) {
 					sprite = Sprite.playerR_1;
 				}else {
@@ -70,7 +70,7 @@ public class Player extends Mob {
 		}
 		if(dir == 2) {
 			sprite = Sprite.playerD;
-			if(walking) {
+			if(walking || moving) {
 				if(animate % 20 > 10) {
 					sprite = Sprite.playerD_1;
 				}else {
@@ -80,7 +80,7 @@ public class Player extends Mob {
 		}
 		if(dir == 3) {
 			sprite = Sprite.playerL;
-			if(walking) {
+			if(walking || moving) {
 				if(animate % 20 > 10) {
 					sprite = Sprite.playerL_1;
 				}else {
